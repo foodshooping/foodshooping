@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Food Shooping — Pedidos Cafetín</title>
+  <title>Food Shooping — Versión Estable</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- EmailJS para enviar correos -->
+  <!-- EmailJS para enviar correos (opcional) -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   
   <style>
-    /* ===== TODOS LOS ESTILOS (MANTENIDOS) ===== */
+    /* ===== ESTILOS COMPLETOS (MANTENIDOS) ===== */
     * {
       margin: 0;
       padding: 0;
@@ -1179,65 +1179,159 @@
   <script>
     (function() {
       // ============================================================
-      // 1. CONFIGURACIÓN - CON TU NUEVA URL
+      // 1. CONFIGURACIÓN - VERSIÓN ESTABLE (SIN SHEETDB)
       // ============================================================
-      const SHEETDB_URL = 'https://sheetdb.io/api/v1/knp1pxpoehhbr';
-      const USE_SHEETDB = true;
+      // DESACTIVAMOS SheetDB para evitar errores
+      const USE_SHEETDB = false;
+      const SHEETDB_URL = ''; // Vacío para que no intente conectar
 
       // ============================================================
-      // 2. FUNCIONES MEJORADAS PARA GUARDAR EN SHEETDB
+      // 2. CONFIGURACIÓN DE EMAILJS (OPCIONAL)
+      // ============================================================
+      const EMAILJS_CONFIG = {
+        publicKey: 'TU_PUBLIC_KEY',
+        serviceID: 'TU_SERVICE_ID',
+        templateID: 'TU_TEMPLATE_ID'
+      };
+
+      // ============================================================
+      // 3. DOM references
+      // ============================================================
+      const loginModal = document.getElementById('loginModal');
+      const registerModal = document.getElementById('registerModal');
+      const recoverModal = document.getElementById('recoverModal');
+      const profileModal = document.getElementById('profileModal');
+      
+      const openLoginBtn = document.getElementById('openLoginBtn');
+      const openRegisterBtn = document.getElementById('openRegisterBtn');
+      
+      const closeLoginBtn = document.getElementById('closeLoginBtn');
+      const closeRegisterBtn = document.getElementById('closeRegisterBtn');
+      const closeRecoverBtn = document.getElementById('closeRecoverBtn');
+      const closeProfileBtn = document.getElementById('closeProfileBtn');
+      
+      const switchToRegister = document.getElementById('switchToRegister');
+      const switchToLogin = document.getElementById('switchToLogin');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      const backToLoginFromRecover = document.getElementById('backToLoginFromRecover');
+      
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const recoverForm = document.getElementById('recoverForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      
+      const loginMessage = document.getElementById('loginMessage');
+      const registerMessage = document.getElementById('registerMessage');
+      const recoverMessage = document.getElementById('recoverMessage');
+      const verifyMessage = document.getElementById('verifyMessage');
+      const passwordMessage = document.getElementById('passwordMessage');
+      
+      const toast = document.getElementById('toast');
+      const userProfile = document.getElementById('userProfile');
+      const userAvatar = document.getElementById('userAvatar');
+      const avatarInitial = document.getElementById('avatarInitial');
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      const userDropdown = document.getElementById('userDropdown');
+      const profileMenuItem = document.getElementById('profileMenuItem');
+      const logoutMenuItem = document.getElementById('logoutMenuItem');
+      
+      const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+      const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+      const profileNameDisplay = document.getElementById('profileNameDisplay');
+      const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+      const profileDateDisplay = document.getElementById('profileDateDisplay');
+      const profileAvatarInput = document.getElementById('profileAvatarInput');
+      const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+      const profileLogoutBtn = document.getElementById('profileLogoutBtn');
+
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+      const recoverTitle = document.getElementById('recoverTitle');
+      const recoverDesc = document.getElementById('recoverDesc');
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+      const resendCodeBtn = document.getElementById('resendCodeBtn');
+      const resendTimer = document.getElementById('resendTimer');
+      const codeInputs = document.querySelectorAll('.code-input');
+
+      let recoveryCode = '';
+      let recoveryEmail = '';
+      let resendTimerInterval = null;
+      let resendCooldown = 0;
+
+      // ============================================================
+      // 4. Inicializar EmailJS
+      // ============================================================
+      if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'TU_PUBLIC_KEY') {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+        console.log('✅ EmailJS inicializado');
+      }
+
+      // ============================================================
+      // 5. Helpers
+      // ============================================================
+      function showToast(msg, duration = 3000) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      }
+
+      function closeAllModals() {
+        loginModal.classList.remove('active');
+        registerModal.classList.remove('active');
+        recoverModal.classList.remove('active');
+        profileModal.classList.remove('active');
+        
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+        registerMessage.textContent = '';
+        registerMessage.className = 'login-message';
+        recoverMessage.textContent = '';
+        recoverMessage.className = 'login-message';
+        verifyMessage.textContent = '';
+        verifyMessage.className = 'login-message';
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'login-message';
+        
+        userDropdown.classList.remove('active');
+        
+        step1.style.display = 'block';
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+        recoverTitle.textContent = '🔑 Recuperar contraseña';
+        recoverDesc.textContent = 'Ingresa tu correo y te enviaremos un código de verificación';
+        
+        if (resendTimerInterval) {
+          clearInterval(resendTimerInterval);
+          resendTimerInterval = null;
+        }
+        resendTimer.textContent = '';
+        resendCodeBtn.disabled = false;
+        resendCooldown = 0;
+        
+        codeInputs.forEach(input => input.value = '');
+        if (codeInputs.length > 0) codeInputs[0].focus();
+      }
+
+      // ============================================================
+      // 6. FUNCIONES DE USUARIO - SOLO LOCALSTORAGE (ESTABLE)
       // ============================================================
       
-      // Obtener usuarios DESDE LA NUBE (SheetDB)
-      async function getUsers() {
+      function getUsers() {
         try {
-          if (USE_SHEETDB && SHEETDB_URL) {
-            console.log('🔄 Cargando usuarios desde SheetDB...');
-            const response = await fetch(SHEETDB_URL);
-            if (response.ok) {
-              const data = await response.json();
-              console.log('✅ Usuarios cargados desde SheetDB:', data.length);
-              
-              // Si SheetDB devuelve un objeto con datos, extraer el array
-              if (data && typeof data === 'object' && !Array.isArray(data)) {
-                // Intentar encontrar el array de datos
-                if (data.data && Array.isArray(data.data)) {
-                  return data.data;
-                } else if (data.users && Array.isArray(data.users)) {
-                  return data.users;
-                } else if (data.rows && Array.isArray(data.rows)) {
-                  return data.rows;
-                }
-                // Si no se encuentra, convertir el objeto a array si tiene índices numéricos
-                const keys = Object.keys(data).filter(k => !isNaN(k));
-                if (keys.length > 0) {
-                  return keys.map(k => data[k]);
-                }
-              }
-              
-              // Si es un array directamente
-              if (Array.isArray(data)) {
-                return data;
-              }
-              
-              console.warn('⚠️ Formato de datos desconocido de SheetDB:', data);
-            } else {
-              console.warn('⚠️ Error al cargar desde SheetDB:', response.status);
-            }
-          }
-        } catch (e) {
-          console.warn('⚠️ Error al cargar desde SheetDB:', e);
-        }
-        
-        // Fallback a localStorage
-        try {
-          const localData = localStorage.getItem('foodshooping_users');
-          if (localData) {
-            const parsed = JSON.parse(localData);
+          const data = localStorage.getItem('foodshooping_users');
+          if (data) {
+            const parsed = JSON.parse(data);
             console.log('💾 Usuarios cargados desde localStorage:', parsed.length);
             return parsed;
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('⚠️ Error al leer localStorage:', e);
+        }
         
         // Usuario demo por defecto
         return [
@@ -1245,88 +1339,663 @@
         ];
       }
 
-      // Guardar usuarios EN LA NUBE (SheetDB) Y LOCAL
-      async function saveUsers(users) {
-        // Guardar en localStorage siempre (respaldo)
-        localStorage.setItem('foodshooping_users', JSON.stringify(users));
-        console.log('💾 Usuarios guardados en localStorage:', users.length);
-        
-        if (!USE_SHEETDB || !SHEETDB_URL) {
-          console.log('ℹ️ SheetDB desactivado. Datos solo en localStorage.');
-          return true;
-        }
-
+      function saveUsers(users) {
         try {
-          console.log('🔄 Guardando usuarios en SheetDB...');
-          
-          // SheetDB espera el formato: { data: [...] }
-          // Pero también acepta el array directamente
-          const payload = { data: users };
-          
-          const response = await fetch(SHEETDB_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
-          });
-          
-          if (response.ok) {
-            const result = await response.json();
-            console.log('✅ Usuarios guardados en SheetDB:', result);
-            showToast('📊 Datos guardados en la nube');
-            return true;
-          } else {
-            const errorText = await response.text();
-            console.warn('⚠️ Error al guardar en SheetDB:', errorText);
-            
-            // Intentar con el formato directo (array)
-            console.log('🔄 Intentando con formato directo...');
-            const response2 = await fetch(SHEETDB_URL, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify(users)
-            });
-            
-            if (response2.ok) {
-              const result = await response2.json();
-              console.log('✅ Usuarios guardados en SheetDB (formato directo):', result);
-              showToast('📊 Datos guardados en la nube');
-              return true;
-            } else {
-              const errorText2 = await response2.text();
-              console.warn('⚠️ Error al guardar en SheetDB (formato directo):', errorText2);
-              showToast('⚠️ Error al guardar en la nube: ' + errorText2);
-              return false;
-            }
-          }
+          localStorage.setItem('foodshooping_users', JSON.stringify(users));
+          console.log('💾 Usuarios guardados en localStorage:', users.length);
+          return true;
         } catch (e) {
-          console.warn('⚠️ Error al guardar en SheetDB:', e);
-          showToast('⚠️ Error de conexión. Datos guardados localmente.');
+          console.warn('⚠️ Error al guardar en localStorage:', e);
+          showToast('❌ Error al guardar los datos');
+          return false;
+        }
+      }
+
+      function getNextId(users) {
+        if (users.length === 0) return 1;
+        return Math.max(...users.map(u => parseInt(u.id) || 0)) + 1;
+      }
+
+      function getSession() {
+        try {
+          const data = localStorage.getItem('foodshooping_session');
+          return data ? JSON.parse(data) : null;
+        } catch { return null; }
+      }
+
+      function setSession(user) {
+        localStorage.setItem('foodshooping_session', JSON.stringify(user));
+      }
+
+      function clearSession() {
+        localStorage.removeItem('foodshooping_session');
+      }
+
+      function generateVerificationCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
+      // ============================================================
+      // 7. Enviar correo con EmailJS
+      // ============================================================
+      async function sendVerificationEmail(email, code) {
+        try {
+          if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey === 'TU_PUBLIC_KEY') {
+            console.warn('⚠️ EmailJS no configurado. Mostrando código en consola.');
+            console.log('📧 Código para', email, ':', code);
+            showToast('📧 [DEMO] Código: ' + code + ' (revisa la consola)', 5000);
+            return true;
+          }
+
+          const templateParams = {
+            to_email: email,
+            verification_code: code,
+            app_name: 'Food Shooping'
+          };
+
+          const response = await emailjs.send(
+            EMAILJS_CONFIG.serviceID,
+            EMAILJS_CONFIG.templateID,
+            templateParams
+          );
+
+          console.log('✅ Correo enviado:', response);
+          return true;
+        } catch (error) {
+          console.error('❌ Error al enviar correo:', error);
+          showToast('❌ Error al enviar el correo. Intenta de nuevo.');
           return false;
         }
       }
 
       // ============================================================
-      // 3. RESTO DEL CÓDIGO (MANTENIDO IGUAL)
+      // 8. Avatar management
       // ============================================================
-      // ... [TODAS LAS DEMÁS FUNCIONES PERMANECEN IGUALES] ...
-      // Por brevedad, se mantiene la estructura del código anterior
-      // con las mismas funciones: getNextId, getSession, setSession, etc.
-      
-      // NOTA: Este código debe incluir TODAS las funciones del script anterior
-      // (login, registro, recuperación, perfil, etc.)
-      
+      function getInitials(name) {
+        if (!name) return 'U';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+      }
+
+      function updateAvatarDisplay(user) {
+        const avatarEl = document.getElementById('avatarInitial');
+        const profileAvatarEl = document.getElementById('profileAvatarInitial');
+        
+        const avatarImg = avatarEl.parentElement.querySelector('img');
+        if (avatarImg) avatarImg.remove();
+        const profileImg = profileAvatarEl.parentElement.querySelector('img');
+        if (profileImg) profileImg.remove();
+        
+        avatarEl.style.display = 'block';
+        profileAvatarEl.style.display = 'block';
+        
+        if (user && user.avatar) {
+          avatarEl.style.display = 'none';
+          const img1 = document.createElement('img');
+          img1.src = user.avatar;
+          img1.style.width = '100%';
+          img1.style.height = '100%';
+          img1.style.objectFit = 'cover';
+          img1.style.position = 'absolute';
+          img1.style.top = '0';
+          img1.style.left = '0';
+          avatarEl.parentElement.appendChild(img1);
+          
+          profileAvatarEl.style.display = 'none';
+          const img2 = document.createElement('img');
+          img2.src = user.avatar;
+          img2.style.width = '100%';
+          img2.style.height = '100%';
+          img2.style.objectFit = 'cover';
+          img2.style.position = 'absolute';
+          img2.style.top = '0';
+          img2.style.left = '0';
+          profileAvatarEl.parentElement.appendChild(img2);
+        } else {
+          const initial = getInitials(user ? user.nombre : 'Usuario');
+          avatarEl.textContent = initial;
+          profileAvatarEl.textContent = initial;
+        }
+      }
+
+      function updateUserInterface(user) {
+        if (user) {
+          userProfile.style.display = 'flex';
+          document.getElementById('openLoginBtn').style.display = 'none';
+          document.getElementById('openRegisterBtn').style.display = 'none';
+          
+          userNameDisplay.textContent = user.nombre || 'Usuario';
+          profileNameDisplay.textContent = user.nombre || 'Usuario';
+          profileEmailDisplay.textContent = user.email || '';
+          if (user.fecha_registro) {
+            const date = new Date(user.fecha_registro);
+            profileDateDisplay.textContent = `Registrado: ${date.toLocaleDateString()}`;
+          }
+          
+          updateAvatarDisplay(user);
+        } else {
+          userProfile.style.display = 'none';
+          document.getElementById('openLoginBtn').style.display = 'block';
+          document.getElementById('openRegisterBtn').style.display = 'block';
+        }
+      }
+
       // ============================================================
-      // 4. INICIALIZACIÓN
+      // 9. Iniciar sesión automática
       // ============================================================
-      console.log('🚀 Food Shooping iniciado');
-      console.log('📡 Conectado a SheetDB:', SHEETDB_URL);
+      function checkSession() {
+        const session = getSession();
+        if (session) {
+          const users = getUsers();
+          const user = users.find(u => parseInt(u.id) === session.id && u.email === session.email);
+          if (user) {
+            updateUserInterface(user);
+            return user;
+          } else {
+            clearSession();
+          }
+        }
+        updateUserInterface(null);
+        return null;
+      }
+
+      // ============================================================
+      // 10. Event Listeners
+      // ============================================================
+      openLoginBtn.addEventListener('click', () => {
+        closeAllModals();
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+      });
+
+      openRegisterBtn.addEventListener('click', () => {
+        closeAllModals();
+        registerModal.classList.add('active');
+        document.getElementById('registerName').focus();
+      });
+
+      closeLoginBtn.addEventListener('click', closeAllModals);
+      closeRegisterBtn.addEventListener('click', closeAllModals);
+      closeRecoverBtn.addEventListener('click', closeAllModals);
+      closeProfileBtn.addEventListener('click', closeAllModals);
+
+      loginModal.addEventListener('click', (e) => {
+        if (e.target === loginModal) closeAllModals();
+      });
+      registerModal.addEventListener('click', (e) => {
+        if (e.target === registerModal) closeAllModals();
+      });
+      recoverModal.addEventListener('click', (e) => {
+        if (e.target === recoverModal) closeAllModals();
+      });
+      profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) closeAllModals();
+      });
+
+      switchToRegister.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.classList.remove('active');
+        registerModal.classList.add('active');
+        document.getElementById('registerName').focus();
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+      });
+
+      switchToLogin.addEventListener('click', (e) => {
+        e.preventDefault();
+        registerModal.classList.remove('active');
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+        registerMessage.textContent = '';
+        registerMessage.className = 'login-message';
+      });
+
+      forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.classList.remove('active');
+        recoverModal.classList.add('active');
+        document.getElementById('recoverEmail').focus();
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+        step1.style.display = 'block';
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+        recoverTitle.textContent = '🔑 Recuperar contraseña';
+        recoverDesc.textContent = 'Ingresa tu correo y te enviaremos un código de verificación';
+        recoverMessage.textContent = '';
+        recoverMessage.className = 'login-message';
+        verifyMessage.textContent = '';
+        verifyMessage.className = 'login-message';
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'login-message';
+        document.getElementById('recoverEmail').value = '';
+      });
+
+      backToLoginFromRecover.addEventListener('click', (e) => {
+        e.preventDefault();
+        recoverModal.classList.remove('active');
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+      });
+
+      // ============================================================
+      // 11. Login
+      // ============================================================
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('loginEmail');
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!email) {
+          loginMessage.textContent = 'Por favor ingresa tu correo.';
+          loginMessage.className = 'login-message error';
+          return;
+        }
+
+        const users = getUsers();
+        const user = users.find(u => u.email.toLowerCase() === email);
+
+        if (user) {
+          setSession({ id: parseInt(user.id), email: user.email });
+          updateUserInterface(user);
+          loginMessage.textContent = `✅ ¡Bienvenido, ${user.nombre}!`;
+          loginMessage.className = 'login-message success';
+          showToast(`👋 Hola ${user.nombre}`);
+          setTimeout(closeAllModals, 1000);
+        } else {
+          loginMessage.textContent = '❌ No encontramos este correo. ¿Quieres registrarte?';
+          loginMessage.className = 'login-message error';
+          setTimeout(() => {
+            if (confirm('¿No tienes cuenta? ¿Quieres registrarte ahora?')) {
+              loginModal.classList.remove('active');
+              registerModal.classList.add('active');
+              document.getElementById('registerEmail').value = email;
+              document.getElementById('registerName').focus();
+              loginMessage.textContent = '';
+              loginMessage.className = 'login-message';
+            }
+          }, 800);
+        }
+      });
+
+      // ============================================================
+      // 12. Registro CON CONTRASEÑA
+      // ============================================================
+      registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('registerName');
+        const emailInput = document.getElementById('registerEmail');
+        const passwordInput = document.getElementById('registerPassword');
+        
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value.trim();
+
+        if (!name || !email || !password) {
+          registerMessage.textContent = '⚠️ Completa todos los campos';
+          registerMessage.className = 'login-message error';
+          return;
+        }
+
+        if (password.length < 6) {
+          registerMessage.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres';
+          registerMessage.className = 'login-message error';
+          return;
+        }
+
+        let users = getUsers();
+
+        if (users.some(u => u.email.toLowerCase() === email)) {
+          registerMessage.textContent = '❌ Este correo ya está registrado.';
+          registerMessage.className = 'login-message error';
+          return;
+        }
+
+        const newUser = {
+          id: getNextId(users),
+          email: email,
+          nombre: name,
+          fecha_registro: new Date().toISOString(),
+          avatar: null,
+          password: password
+        };
+
+        users.push(newUser);
+        saveUsers(users);
+        
+        setSession({ id: parseInt(newUser.id), email: newUser.email });
+        updateUserInterface(newUser);
+
+        registerMessage.textContent = `✅ ¡Cuenta creada con éxito, ${name}!`;
+        registerMessage.className = 'login-message success';
+        showToast(`🎉 ¡Bienvenido ${name}!`);
+
+        nameInput.value = '';
+        emailInput.value = '';
+        passwordInput.value = '';
+
+        setTimeout(closeAllModals, 1000);
+      });
+
+      // ============================================================
+      // 13. Recuperación de Contraseña
+      // ============================================================
       
+      recoverForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('recoverEmail').value.trim().toLowerCase();
+
+        if (!email) {
+          recoverMessage.textContent = 'Por favor ingresa tu correo.';
+          recoverMessage.className = 'login-message error';
+          return;
+        }
+
+        const users = getUsers();
+        const user = users.find(u => u.email.toLowerCase() === email);
+
+        if (!user) {
+          recoverMessage.textContent = '❌ No encontramos una cuenta con este correo.';
+          recoverMessage.className = 'login-message error';
+          return;
+        }
+
+        recoveryCode = generateVerificationCode();
+        recoveryEmail = email;
+        
+        const tempData = {
+          email: email,
+          code: recoveryCode,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('foodshooping_recovery', JSON.stringify(tempData));
+
+        recoverMessage.textContent = '📧 Enviando código...';
+        recoverMessage.className = 'login-message info';
+        sendCodeBtn.disabled = true;
+
+        const sent = await sendVerificationEmail(email, recoveryCode);
+
+        if (sent) {
+          recoverMessage.textContent = '✅ Código enviado a tu correo. Revisa tu bandeja de entrada.';
+          recoverMessage.className = 'login-message success';
+          
+          step1.style.display = 'none';
+          step2.style.display = 'block';
+          recoverTitle.textContent = '🔐 Verificar código';
+          recoverDesc.textContent = 'Ingresa el código de 6 dígitos que enviamos a ' + email;
+          
+          codeInputs[0].focus();
+          startResendTimer(60);
+        } else {
+          recoverMessage.textContent = '❌ Error al enviar el código. Intenta de nuevo.';
+          recoverMessage.className = 'login-message error';
+        }
+        
+        sendCodeBtn.disabled = false;
+      });
+
+      function startResendTimer(seconds) {
+        resendCooldown = seconds;
+        resendCodeBtn.disabled = true;
+        resendTimer.textContent = `⏳ Reenviar en ${seconds}s`;
+        
+        if (resendTimerInterval) {
+          clearInterval(resendTimerInterval);
+        }
+        
+        resendTimerInterval = setInterval(() => {
+          resendCooldown--;
+          if (resendCooldown <= 0) {
+            clearInterval(resendTimerInterval);
+            resendTimerInterval = null;
+            resendCodeBtn.disabled = false;
+            resendTimer.textContent = '🔄 Haz clic para reenviar';
+          } else {
+            resendTimer.textContent = `⏳ Reenviar en ${resendCooldown}s`;
+          }
+        }, 1000);
+      }
+
+      resendCodeBtn.addEventListener('click', async () => {
+        if (resendCodeBtn.disabled) return;
+        
+        recoveryCode = generateVerificationCode();
+        
+        const tempData = {
+          email: recoveryEmail,
+          code: recoveryCode,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('foodshooping_recovery', JSON.stringify(tempData));
+        
+        verifyMessage.textContent = '📧 Reenviando código...';
+        verifyMessage.className = 'login-message info';
+        resendCodeBtn.disabled = true;
+        
+        const sent = await sendVerificationEmail(recoveryEmail, recoveryCode);
+        
+        if (sent) {
+          verifyMessage.textContent = '✅ Nuevo código enviado.';
+          verifyMessage.className = 'login-message success';
+          startResendTimer(60);
+        } else {
+          verifyMessage.textContent = '❌ Error al reenviar. Intenta de nuevo.';
+          verifyMessage.className = 'login-message error';
+          resendCodeBtn.disabled = false;
+        }
+      });
+
+      codeInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          const value = e.target.value;
+          if (value && !/^[0-9]$/.test(value)) {
+            e.target.value = '';
+            return;
+          }
+          if (value && index < codeInputs.length - 1) {
+            codeInputs[index + 1].focus();
+          }
+          const allFilled = Array.from(codeInputs).every(inp => inp.value.length === 1);
+          if (allFilled) {
+            setTimeout(() => {
+              verifyCodeBtn.click();
+            }, 300);
+          }
+        });
+        
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            codeInputs[index - 1].focus();
+          }
+        });
+        
+        input.addEventListener('focus', () => {
+          input.select();
+        });
+      });
+
+      verifyCodeBtn.addEventListener('click', () => {
+        const code = Array.from(codeInputs).map(input => input.value).join('');
+        
+        if (code.length !== 6) {
+          verifyMessage.textContent = '⚠️ Ingresa el código de 6 dígitos completo.';
+          verifyMessage.className = 'login-message error';
+          return;
+        }
+        
+        const tempData = JSON.parse(localStorage.getItem('foodshooping_recovery') || '{}');
+        
+        if (tempData.code === code && tempData.email === recoveryEmail) {
+          const elapsed = Date.now() - tempData.timestamp;
+          if (elapsed > 10 * 60 * 1000) {
+            verifyMessage.textContent = '⏰ El código ha expirado. Solicita uno nuevo.';
+            verifyMessage.className = 'login-message error';
+            return;
+          }
+          
+          verifyMessage.textContent = '✅ Código correcto.';
+          verifyMessage.className = 'login-message success';
+          
+          step2.style.display = 'none';
+          step3.style.display = 'block';
+          recoverTitle.textContent = '🔒 Nueva contraseña';
+          recoverDesc.textContent = 'Ingresa tu nueva contraseña para ' + recoveryEmail;
+          
+          localStorage.removeItem('foodshooping_recovery');
+          
+        } else {
+          verifyMessage.textContent = '❌ Código incorrecto. Intenta de nuevo.';
+          verifyMessage.className = 'login-message error';
+        }
+      });
+
+      newPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword.length < 6) {
+          passwordMessage.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+          passwordMessage.textContent = '❌ Las contraseñas no coinciden.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        const users = getUsers();
+        const userIndex = users.findIndex(u => u.email.toLowerCase() === recoveryEmail);
+        
+        if (userIndex === -1) {
+          passwordMessage.textContent = '❌ Error: Usuario no encontrado.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        users[userIndex].password = newPassword;
+        saveUsers(users);
+        
+        passwordMessage.textContent = '✅ ¡Contraseña actualizada con éxito!';
+        passwordMessage.className = 'login-message success';
+        
+        showToast('🔒 Contraseña actualizada correctamente');
+        
+        setTimeout(() => {
+          closeAllModals();
+          loginModal.classList.add('active');
+          document.getElementById('loginEmail').value = recoveryEmail;
+          loginMessage.textContent = '✅ Contraseña actualizada. Inicia sesión.';
+          loginMessage.className = 'login-message success';
+        }, 1500);
+      });
+
+      // ============================================================
+      // 14. Perfil - Dropdown
+      // ============================================================
+      userProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+
+      document.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+      });
+
+      profileMenuItem.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+        const session = getSession();
+        if (session) {
+          profileModal.classList.add('active');
+        }
+      });
+
+      // ============================================================
+      // 15. Cerrar sesión
+      // ============================================================
+      function logout() {
+        clearSession();
+        updateUserInterface(null);
+        closeAllModals();
+        showToast('👋 Has cerrado sesión');
+      }
+
+      logoutMenuItem.addEventListener('click', logout);
+      profileLogoutBtn.addEventListener('click', logout);
+
+      // ============================================================
+      // 16. Subir avatar
+      // ============================================================
+      avatarUploadBtn.addEventListener('click', () => {
+        profileAvatarInput.click();
+      });
+
+      profileAvatarInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 2 * 1024 * 1024) {
+          showToast('❌ La imagen es muy grande (máx 2MB)');
+          profileAvatarInput.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const avatarData = event.target.result;
+          
+          const session = getSession();
+          if (session) {
+            const users = getUsers();
+            const userIndex = users.findIndex(u => parseInt(u.id) === session.id);
+            if (userIndex !== -1) {
+              users[userIndex].avatar = avatarData;
+              saveUsers(users);
+              setSession({ id: parseInt(users[userIndex].id), email: users[userIndex].email });
+              updateUserInterface(users[userIndex]);
+              showToast('📷 Foto de perfil actualizada');
+            }
+          }
+          profileAvatarInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // ============================================================
+      // 17. Descarga APK
+      // ============================================================
+      document.getElementById('downloadApkBtn')?.addEventListener('click', () => {
+        showToast('📲 Descargando Food Shooping APK...', 2000);
+      });
+
+      // ============================================================
+      // 18. Cerrar con Escape
+      // ============================================================
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllModals();
+      });
+
+      // ============================================================
+      // 19. Inicializar
+      // ============================================================
+      const currentUser = checkSession();
+      if (currentUser) {
+        updateUserInterface(currentUser);
+      }
+
+      window.getUsers = getUsers;
+      window.saveUsers = saveUsers;
+      window.getSession = getSession;
+      window.logout = logout;
+
+      setTimeout(() => {
+        showToast('🍕 ¡Bienvenido a Food Shooping!', 2500);
+      }, 600);
+
     })();
   </script>
 </body>
