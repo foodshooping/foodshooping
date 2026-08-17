@@ -1,0 +1,22 @@
+{
+  "name": "food-shooping",
+  "version": "1.0.0",
+  "description": "Food Shooping - Ordena comida fácilmente",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "init-db": "node scripts/init-db.js",
+    "build:apk": "npx cap sync android && cd android && gradlew assembleDebug"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  }
+}

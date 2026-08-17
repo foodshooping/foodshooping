@@ -1,0 +1,8 @@
+{
+  "appId": "com.foodshooping.app",
+  "appName": "Food Shooping",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https"
+  }
+}
