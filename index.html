@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Food Shooping — Recuperación de contraseña</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- EmailJS para enviar correos -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .bg-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse at 20% 50%, #1a1a2e 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, #1a1a2e 0%, transparent 60%),
+                  radial-gradient(ellipse at 50% 0%, #2d1b3d 0%, transparent 50%);
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(10, 10, 15, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .nav-logo {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 4px 12px 4px 4px;
+      border-radius: 50px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s ease;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .user-profile:active {
+      transform: scale(0.95);
+    }
+
+    .user-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      color: #1a1a2e;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-menu-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #1a1a2e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 8px 0;
+      min-width: 180px;
+      display: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 200;
+    }
+
+    .user-menu-dropdown.active {
+      display: block;
+    }
+
+    .user-menu-dropdown .menu-item {
+      padding: 10px 18px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .user-menu-dropdown .menu-item:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .user-menu-dropdown .menu-item.danger {
+      color: #f44336;
+    }
+
+    .btn-login-nav, .btn-register-nav {
+      padding: 7px 16px;
+      border-radius: 50px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+
+    .btn-login-nav:active, .btn-register-nav:active {
+      transform: scale(0.95);
+    }
+
+    .btn-login-nav {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-register-nav {
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      color: #1a1a2e;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      padding: 110px 20px 60px;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-glow {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(247, 151, 30, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .logo-container {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .main-logo {
+      width: 90px;
+      height: 90px;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 0 30px rgba(247, 151, 30, 0.2));
+    }
+
+    .logo-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 2px solid rgba(247, 151, 30, 0.15);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+
+    .ring-2 {
+      width: 150px;
+      height: 150px;
+      animation-delay: 1s;
+      border-color: rgba(255, 210, 0, 0.08);
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+
+    .hero-desc {
+      max-width: 500px;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.6;
+      font-size: 15px;
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .hero-features {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 18px 22px;
+      min-width: 130px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      flex: 1;
+      max-width: 200px;
+    }
+
+    .feature-card:active {
+      transform: scale(0.97);
+    }
+
+    .feature-icon {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .feature-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .feature-card p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .preview-section {
+      position: relative;
+      z-index: 1;
+      padding: 50px 20px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .section-subtitle {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+
+    .phones-showcase {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 160px;
+      height: 320px;
+      background: #1a1a2e;
+      border-radius: 24px;
+      padding: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 16px;
+      background: #0a0a0f;
+      border-radius: 0 0 10px 10px;
+      z-index: 5;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      background: #12121f;
+    }
+
+    .phone-reflection {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .download-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .download-glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(247, 151, 30, 0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    .btn-download {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      border: none;
+      border-radius: 50px;
+      padding: 14px 28px;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+      min-width: 160px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-download:active {
+      transform: scale(0.95);
+    }
+
+    .btn-icon {
+      font-size: 24px;
+    }
+
+    .btn-text {
+      font-weight: 700;
+      font-size: 16px;
+      color: #1a1a2e;
+    }
+
+    .btn-sub {
+      font-size: 11px;
+      color: rgba(26, 26, 46, 0.6);
+      font-weight: 400;
+    }
+
+    .download-note {
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 13px;
+    }
+
+    .about-section {
+      position: relative;
+      z-index: 1;
+      padding: 50px 20px;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .about-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .about-content h2 {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+
+    .about-content p {
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .about-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+      text-align: left;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+    }
+
+    .about-list li {
+      padding: 4px 0;
+    }
+
+    .footer {
+      position: relative;
+      z-index: 1;
+      padding: 30px 20px;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .footer-logo {
+      width: 28px;
+      height: 28px;
+      margin-bottom: 8px;
+    }
+
+    .footer p {
+      color: rgba(255, 255, 255, 0.15);
+      font-size: 13px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #1a1a2e;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 20px;
+      padding: 36px 24px 28px;
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.3s;
+      padding: 4px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-close:active {
+      color: #fff;
+    }
+
+    .modal-logo {
+      width: 48px;
+      height: 48px;
+      display: block;
+      margin: 0 auto 12px;
+    }
+
+    .modal h2 {
+      text-align: center;
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .modal-desc {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 4px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      transition: border-color 0.3s;
+      -webkit-appearance: none;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: rgba(247, 151, 30, 0.4);
+    }
+
+    .input-group input::placeholder {
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Estilos para el código de verificación (inputs separados) */
+    .verification-code-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 10px 0 16px;
+    }
+
+    .verification-code-container input {
+      width: 48px;
+      height: 56px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.3s ease;
+      -webkit-appearance: none;
+    }
+
+    .verification-code-container input:focus {
+      outline: none;
+      border-color: #f7971e;
+      background: rgba(247, 151, 30, 0.05);
+    }
+
+    .verification-code-container input:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      color: #1a1a2e;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.97);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-submit-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 8px;
+    }
+
+    .btn-submit-secondary:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .login-message {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    .login-message.success {
+      color: #4caf50;
+    }
+
+    .login-message.error {
+      color: #f44336;
+    }
+
+    .login-message.info {
+      color: #64b5f6;
+    }
+
+    .modal-footer-links {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .modal-footer-links a {
+      color: #f7971e;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 600;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .modal-footer-links a:active {
+      opacity: 0.7;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #2d2d44;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      border: 1px solid rgba(255,255,255,0.06);
+      z-index: 2000;
+      opacity: 0;
+      transition: all 0.4s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      max-width: 90%;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Perfil Modal */
+    .profile-modal .modal {
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .profile-avatar-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 16px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-avatar-container .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f7971e, #ffd200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 700;
+      color: #1a1a2e;
+      overflow: hidden;
+      border: 3px solid rgba(247, 151, 30, 0.25);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .profile-avatar-container .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .profile-avatar-container .avatar-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background: #f7971e;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      border: 2px solid #1a1a2e;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-avatar-container .avatar-overlay:active {
+      transform: scale(0.9);
+    }
+
+    #profileAvatarInput {
+      display: none;
+    }
+
+    .profile-info {
+      margin: 12px 0;
+    }
+
+    .profile-info h3 {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    .profile-info p {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .profile-actions .btn-submit {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .profile-actions .btn-submit.danger {
+      color: #f44336;
+      border-color: rgba(244, 67, 54, 0.2);
+    }
+
+    .profile-actions .btn-submit:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .resend-timer {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.3);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(247, 151, 30, 0.3);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        padding: 10px 14px;
+      }
+      
+      .nav-brand {
+        font-size: 16px;
+      }
+      
+      .nav-brand span {
+        font-size: 15px;
+      }
+      
+      .user-name {
+        max-width: 60px;
+        font-size: 13px;
+      }
+      
+      .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+      
+      .btn-login-nav, .btn-register-nav {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+      
+      .hero-title {
+        font-size: 32px;
+      }
+      
+      .hero-subtitle {
+        font-size: 16px;
+      }
+      
+      .hero-desc {
+        font-size: 14px;
+      }
+      
+      .section-title {
+        font-size: 24px;
+      }
+      
+      .phone-frame {
+        width: 130px;
+        height: 260px;
+      }
+      
+      .modal {
+        padding: 28px 18px 22px;
+      }
+      
+      .about-list {
+        grid-template-columns: 1fr;
+        font-size: 13px;
+      }
+      
+      .feature-card {
+        min-width: 100px;
+        padding: 14px 16px;
+      }
+      
+      .feature-icon {
+        font-size: 22px;
+      }
+      
+      .btn-download {
+        padding: 12px 20px;
+        min-width: 140px;
+      }
+      
+      .btn-text {
+        font-size: 14px;
+      }
+      
+      .profile-avatar-container {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .profile-avatar-container .avatar-preview {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+      }
+      
+      .profile-avatar-container .avatar-overlay {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+      }
+
+      .verification-code-container input {
+        width: 40px;
+        height: 48px;
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .nav-brand span {
+        font-size: 13px;
+      }
+      
+      .btn-login-nav, .btn-register-nav {
+        font-size: 11px;
+        padding: 5px 10px;
+      }
+      
+      .hero-title {
+        font-size: 26px;
+      }
+      
+      .user-name {
+        max-width: 45px;
+        font-size: 12px;
+      }
+      
+      .user-profile {
+        padding: 3px 8px 3px 3px;
+      }
+      
+      .user-avatar {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+      }
+
+      .verification-code-container input {
+        width: 34px;
+        height: 42px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particles" id="particles"></div>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <img src="images/logo.svg" alt="Food Shooping" class="nav-logo" onerror="this.style.display='none'">
+      <span>Food Shooping</span>
+    </div>
+    <div class="nav-actions" id="navActions">
+      <button class="btn-login-nav" id="openLoginBtn">Iniciar sesión</button>
+      <button class="btn-register-nav" id="openRegisterBtn">Crear cuenta</button>
+      
+      <div class="user-profile" id="userProfile" style="display:none;">
+        <div class="user-avatar" id="userAvatar">
+          <span id="avatarInitial">U</span>
+        </div>
+        <span class="user-name" id="userNameDisplay">Usuario</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+        <div class="user-menu-dropdown" id="userDropdown">
+          <div class="menu-item" id="profileMenuItem">👤 Mi perfil</div>
+          <div class="menu-item danger" id="logoutMenuItem">🚪 Cerrar sesión</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <div class="logo-container">
+      <img src="images/logo.svg" alt="Food Shooping Logo" class="main-logo" onerror="this.style.display='none'">
+      <div class="logo-ring"></div>
+      <div class="logo-ring ring-2"></div>
+    </div>
+    <h1 class="hero-title">
+      <span class="gradient-text">Food Shooping</span>
+    </h1>
+    <p class="hero-subtitle">Tu app favorita para ordenar comida</p>
+    <p class="hero-desc">
+      Descubre restaurantes cerca de ti, explora menús deliciosos, personaliza tu pedido
+      y recíbelo en la puerta de tu casa. Rápido, fácil y con las mejores ofertas.
+    </p>
+    <div class="hero-features">
+      <div class="feature-card">
+        <span class="feature-icon">🍕</span>
+        <h3>Miles de restaurantes</h3>
+        <p>Pizza, sushi, tacos</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">⚡</span>
+        <h3>Entrega rápida</h3>
+        <p>En minutos a tu puerta</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🙏</span>
+        <h3>Gracias por tu confianza</h3>
+        <p>Estamos para servirte</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="preview-section">
+    <h2 class="section-title">Así se verá tu app</h2>
+    <p class="section-subtitle">Una experiencia moderna, intuitiva y deliciosa</p>
+    <div class="phones-showcase">
+      <div class="phone-frame phone-left">
+        <div class="phone-notch"></div>
+        <img src="images/app-preview-1.svg" alt="Vista principal" class="phone-screen" onerror="this.style.display='none'">
+        <div class="phone-reflection"></div>
+      </div>
+      <div class="download-center">
+        <div class="download-glow"></div>
+        <button class="btn-download" id="downloadApkBtn">
+          <span class="btn-icon">📱</span>
+          <span class="btn-text">Descargar APK</span>
+          <span class="btn-sub">Android · Gratis</span>
+        </button>
+        <p class="download-note">Instala la app y empieza a ordenar</p>
+      </div>
+      <div class="phone-frame phone-right">
+        <div class="phone-notch"></div>
+        <img src="images/app-preview-2.svg" alt="Vista de pedido" class="phone-screen" onerror="this.style.display='none'">
+        <div class="phone-reflection"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="about-content">
+      <h2>¿Qué es Food Shooping?</h2>
+      <p>
+        Food Shooping es la plataforma que conecta tu hambre con los mejores restaurantes de tu ciudad.
+        Navega por categorías, lee reseñas, aplica cupones y sigue tu pedido en tiempo real.
+      </p>
+      <ul class="about-list">
+        <li>🛒 Carrito inteligente con sugerencias</li>
+        <li>📍 Seguimiento GPS de tu repartidor</li>
+        <li>⭐ Sistema de reseñas y favoritos</li>
+        <li>🔔 Notificaciones de ofertas exclusivas</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <img src="images/logo.svg" alt="Logo" class="footer-logo" onerror="this.style.display='none'">
+    <p>© 2026 Food Shooping. Hecho con ❤️ para los amantes de la comida.</p>
+  </footer>
+
+  <!-- Modal Login -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" id="closeLoginBtn">&times;</button>
+      <img src="images/logo.svg" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
+      <h2>Bienvenido de vuelta</h2>
+      <p class="modal-desc">Ingresa tu correo para iniciar sesión</p>
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="loginEmail">Correo electrónico</label>
+          <input type="email" id="loginEmail" placeholder="tu@correo.com" required autocomplete="email">
+        </div>
+        <button type="submit" class="btn-submit">Iniciar sesión</button>
+      </form>
+      <div class="login-message" id="loginMessage"></div>
+      <div class="modal-footer-links">
+        <a id="forgotPasswordLink">🔑 ¿Olvidaste tu contraseña?</a>
+      </div>
+      <div class="modal-footer-links" style="margin-top: 8px;">
+        ¿No tienes cuenta? <a id="switchToRegister">Crear cuenta</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Register -->
+  <div class="modal-overlay register-modal" id="registerModal">
+    <div class="modal">
+      <button class="modal-close" id="closeRegisterBtn">&times;</button>
+      <img src="images/logo.svg" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
+      <h2>Crear cuenta</h2>
+      <p class="modal-desc">Regístrate y empieza a ordenar</p>
+      <form id="registerForm">
+        <div class="input-group">
+          <label for="registerName">Nombre completo</label>
+          <input type="text" id="registerName" placeholder="Tu nombre" required>
+        </div>
+        <div class="input-group">
+          <label for="registerEmail">Correo electrónico</label>
+          <input type="email" id="registerEmail" placeholder="tu@correo.com" required autocomplete="email">
+        </div>
+        <button type="submit" class="btn-submit">Registrarme</button>
+      </form>
+      <div class="login-message" id="registerMessage"></div>
+      <div class="modal-footer-links">
+        ¿Ya tienes cuenta? <a id="switchToLogin">Iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Recuperación de Contraseña -->
+  <div class="modal-overlay recover-modal" id="recoverModal">
+    <div class="modal">
+      <button class="modal-close" id="closeRecoverBtn">&times;</button>
+      <img src="images/logo.svg" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
+      <h2 id="recoverTitle">🔑 Recuperar contraseña</h2>
+      <p class="modal-desc" id="recoverDesc">Ingresa tu correo y te enviaremos un código de verificación</p>
+      
+      <!-- Paso 1: Enviar correo -->
+      <div id="step1">
+        <form id="recoverForm">
+          <div class="input-group">
+            <label for="recoverEmail">Correo electrónico</label>
+            <input type="email" id="recoverEmail" placeholder="tu@correo.com" required autocomplete="email">
+          </div>
+          <button type="submit" class="btn-submit" id="sendCodeBtn">📧 Enviar código</button>
+        </form>
+        <div class="login-message" id="recoverMessage"></div>
+      </div>
+
+      <!-- Paso 2: Verificar código -->
+      <div id="step2" style="display:none;">
+        <p class="modal-desc">Ingresa el código de 6 dígitos que enviamos a tu correo</p>
+        <div class="verification-code-container" id="codeContainer">
+          <input type="text" maxlength="1" class="code-input" data-index="0" inputmode="numeric" pattern="[0-9]">
+          <input type="text" maxlength="1" class="code-input" data-index="1" inputmode="numeric" pattern="[0-9]">
+          <input type="text" maxlength="1" class="code-input" data-index="2" inputmode="numeric" pattern="[0-9]">
+          <input type="text" maxlength="1" class="code-input" data-index="3" inputmode="numeric" pattern="[0-9]">
+          <input type="text" maxlength="1" class="code-input" data-index="4" inputmode="numeric" pattern="[0-9]">
+          <input type="text" maxlength="1" class="code-input" data-index="5" inputmode="numeric" pattern="[0-9]">
+        </div>
+        <button class="btn-submit" id="verifyCodeBtn">✅ Verificar código</button>
+        <button class="btn-submit btn-submit-secondary" id="resendCodeBtn">🔄 Reenviar código</button>
+        <div class="resend-timer" id="resendTimer"></div>
+        <div class="login-message" id="verifyMessage"></div>
+      </div>
+
+      <!-- Paso 3: Nueva contraseña -->
+      <div id="step3" style="display:none;">
+        <p class="modal-desc">Ingresa tu nueva contraseña</p>
+        <form id="newPasswordForm">
+          <div class="input-group">
+            <label for="newPassword">Nueva contraseña</label>
+            <input type="password" id="newPassword" placeholder="Tu nueva contraseña" required minlength="6">
+          </div>
+          <div class="input-group">
+            <label for="confirmPassword">Confirmar contraseña</label>
+            <input type="password" id="confirmPassword" placeholder="Repite tu contraseña" required minlength="6">
+          </div>
+          <button type="submit" class="btn-submit">🔒 Actualizar contraseña</button>
+        </form>
+        <div class="login-message" id="passwordMessage"></div>
+      </div>
+
+      <div class="modal-footer-links" style="margin-top: 16px;">
+        <a id="backToLoginFromRecover">← Volver a iniciar sesión</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Perfil -->
+  <div class="modal-overlay profile-modal" id="profileModal">
+    <div class="modal">
+      <button class="modal-close" id="closeProfileBtn">&times;</button>
+      <div class="profile-avatar-container" id="avatarContainer">
+        <div class="avatar-preview" id="profileAvatarPreview">
+          <span id="profileAvatarInitial">U</span>
+        </div>
+        <div class="avatar-overlay" id="avatarUploadBtn">📷</div>
+        <input type="file" id="profileAvatarInput" accept="image/*">
+      </div>
+      <div class="profile-info">
+        <h3 id="profileNameDisplay">Usuario</h3>
+        <p id="profileEmailDisplay">usuario@email.com</p>
+        <p style="font-size:11px; color:rgba(255,255,255,0.15); margin-top:4px;" id="profileDateDisplay">Registrado: --</p>
+      </div>
+      <div class="profile-actions">
+        <button class="btn-submit danger" id="profileLogoutBtn">🚪 Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function() {
+      // ============================================================
+      // 1. CONFIGURACIÓN DE EMAILJS (REEMPLAZA CON TUS DATOS)
+      // ============================================================
+      // PASO 1: Ve a https://www.emailjs.com/ y regístrate (gratis)
+      // PASO 2: Crea un servicio y un template
+      // PASO 3: Reemplaza estos valores:
+      const EMAILJS_CONFIG = {
+        publicKey: 'TU_PUBLIC_KEY',        // Ej: 'abc123xyz'
+        serviceID: 'TU_SERVICE_ID',        // Ej: 'service_gmail'
+        templateID: 'TU_TEMPLATE_ID'       // Ej: 'template_recovery'
+      };
+
+      // ============================================================
+      // 2. DOM references
+      // ============================================================
+      const loginModal = document.getElementById('loginModal');
+      const registerModal = document.getElementById('registerModal');
+      const recoverModal = document.getElementById('recoverModal');
+      const profileModal = document.getElementById('profileModal');
+      
+      const openLoginBtn = document.getElementById('openLoginBtn');
+      const openRegisterBtn = document.getElementById('openRegisterBtn');
+      
+      const closeLoginBtn = document.getElementById('closeLoginBtn');
+      const closeRegisterBtn = document.getElementById('closeRegisterBtn');
+      const closeRecoverBtn = document.getElementById('closeRecoverBtn');
+      const closeProfileBtn = document.getElementById('closeProfileBtn');
+      
+      const switchToRegister = document.getElementById('switchToRegister');
+      const switchToLogin = document.getElementById('switchToLogin');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      const backToLoginFromRecover = document.getElementById('backToLoginFromRecover');
+      
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const recoverForm = document.getElementById('recoverForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      
+      const loginMessage = document.getElementById('loginMessage');
+      const registerMessage = document.getElementById('registerMessage');
+      const recoverMessage = document.getElementById('recoverMessage');
+      const verifyMessage = document.getElementById('verifyMessage');
+      const passwordMessage = document.getElementById('passwordMessage');
+      
+      const toast = document.getElementById('toast');
+      const userProfile = document.getElementById('userProfile');
+      const userAvatar = document.getElementById('userAvatar');
+      const avatarInitial = document.getElementById('avatarInitial');
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      const userDropdown = document.getElementById('userDropdown');
+      const profileMenuItem = document.getElementById('profileMenuItem');
+      const logoutMenuItem = document.getElementById('logoutMenuItem');
+      
+      const profileAvatarPreview = document.getElementById('profileAvatarPreview');
+      const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+      const profileNameDisplay = document.getElementById('profileNameDisplay');
+      const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+      const profileDateDisplay = document.getElementById('profileDateDisplay');
+      const profileAvatarInput = document.getElementById('profileAvatarInput');
+      const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+      const profileLogoutBtn = document.getElementById('profileLogoutBtn');
+
+      // Recuperación de contraseña
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const step3 = document.getElementById('step3');
+      const recoverTitle = document.getElementById('recoverTitle');
+      const recoverDesc = document.getElementById('recoverDesc');
+      const sendCodeBtn = document.getElementById('sendCodeBtn');
+      const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+      const resendCodeBtn = document.getElementById('resendCodeBtn');
+      const resendTimer = document.getElementById('resendTimer');
+      const codeInputs = document.querySelectorAll('.code-input');
+      const recoverEmailInput = document.getElementById('recoverEmail');
+
+      // Variables de recuperación
+      let recoveryCode = '';
+      let recoveryEmail = '';
+      let resendTimerInterval = null;
+      let resendCooldown = 0;
+
+      // ============================================================
+      // 3. Inicializar EmailJS
+      // ============================================================
+      if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.publicKey !== 'TU_PUBLIC_KEY') {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+        console.log('✅ EmailJS inicializado');
+      } else {
+        console.warn('⚠️ Configura EmailJS para enviar correos reales');
+        console.warn('📧 Registrate en https://www.emailjs.com/');
+      }
+
+      // ============================================================
+      // 4. Helpers
+      // ============================================================
+      function showToast(msg, duration = 3000) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      }
+
+      function closeAllModals() {
+        loginModal.classList.remove('active');
+        registerModal.classList.remove('active');
+        recoverModal.classList.remove('active');
+        profileModal.classList.remove('active');
+        
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+        registerMessage.textContent = '';
+        registerMessage.className = 'login-message';
+        recoverMessage.textContent = '';
+        recoverMessage.className = 'login-message';
+        verifyMessage.textContent = '';
+        verifyMessage.className = 'login-message';
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'login-message';
+        
+        userDropdown.classList.remove('active');
+        
+        // Resetear recuperación
+        step1.style.display = 'block';
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+        recoverTitle.textContent = '🔑 Recuperar contraseña';
+        recoverDesc.textContent = 'Ingresa tu correo y te enviaremos un código de verificación';
+        
+        if (resendTimerInterval) {
+          clearInterval(resendTimerInterval);
+          resendTimerInterval = null;
+        }
+        resendTimer.textContent = '';
+        resendCodeBtn.disabled = false;
+        resendCooldown = 0;
+        
+        // Limpiar campos de código
+        codeInputs.forEach(input => input.value = '');
+        codeInputs[0].focus();
+      }
+
+      // ============================================================
+      // 5. User management
+      // ============================================================
+      function getUsers() {
+        try {
+          const data = localStorage.getItem('foodshooping_users');
+          if (data) return JSON.parse(data);
+        } catch (e) {}
+        return [
+          { id: 1, email: 'demo@foodshooping.com', nombre: 'Usuario Demo', fecha_registro: new Date().toISOString(), avatar: null, password: 'demo123' }
+        ];
+      }
+
+      function saveUsers(users) {
+        localStorage.setItem('foodshooping_users', JSON.stringify(users));
+      }
+
+      function getNextId(users) {
+        if (users.length === 0) return 1;
+        return Math.max(...users.map(u => u.id)) + 1;
+      }
+
+      function getSession() {
+        try {
+          const data = localStorage.getItem('foodshooping_session');
+          return data ? JSON.parse(data) : null;
+        } catch { return null; }
+      }
+
+      function setSession(user) {
+        localStorage.setItem('foodshooping_session', JSON.stringify(user));
+      }
+
+      function clearSession() {
+        localStorage.removeItem('foodshooping_session');
+      }
+
+      // ============================================================
+      // 6. Generar código de verificación
+      // ============================================================
+      function generateVerificationCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }
+
+      // ============================================================
+      // 7. Enviar correo con EmailJS
+      // ============================================================
+      async function sendVerificationEmail(email, code) {
+        try {
+          // Verificar si EmailJS está configurado
+          if (!EMAILJS_CONFIG.publicKey || EMAILJS_CONFIG.publicKey === 'TU_PUBLIC_KEY') {
+            console.warn('⚠️ EmailJS no configurado. Simulando envío...');
+            showToast('📧 [DEMO] Código enviado a ' + email + ': ' + code);
+            return true;
+          }
+
+          const templateParams = {
+            to_email: email,
+            verification_code: code,
+            app_name: 'Food Shooping'
+          };
+
+          const response = await emailjs.send(
+            EMAILJS_CONFIG.serviceID,
+            EMAILJS_CONFIG.templateID,
+            templateParams
+          );
+
+          console.log('✅ Correo enviado:', response);
+          return true;
+        } catch (error) {
+          console.error('❌ Error al enviar correo:', error);
+          showToast('❌ Error al enviar el correo. Verifica la configuración de EmailJS.');
+          return false;
+        }
+      }
+
+      // ============================================================
+      // 8. Avatar management
+      // ============================================================
+      function getInitials(name) {
+        if (!name) return 'U';
+        const parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+      }
+
+      function updateAvatarDisplay(user) {
+        const avatarEl = document.getElementById('avatarInitial');
+        const profileAvatarEl = document.getElementById('profileAvatarInitial');
+        
+        const avatarImg = avatarEl.parentElement.querySelector('img');
+        if (avatarImg) avatarImg.remove();
+        const profileImg = profileAvatarEl.parentElement.querySelector('img');
+        if (profileImg) profileImg.remove();
+        
+        avatarEl.style.display = 'block';
+        profileAvatarEl.style.display = 'block';
+        
+        if (user && user.avatar) {
+          avatarEl.style.display = 'none';
+          const img1 = document.createElement('img');
+          img1.src = user.avatar;
+          img1.style.width = '100%';
+          img1.style.height = '100%';
+          img1.style.objectFit = 'cover';
+          img1.style.position = 'absolute';
+          img1.style.top = '0';
+          img1.style.left = '0';
+          avatarEl.parentElement.appendChild(img1);
+          
+          profileAvatarEl.style.display = 'none';
+          const img2 = document.createElement('img');
+          img2.src = user.avatar;
+          img2.style.width = '100%';
+          img2.style.height = '100%';
+          img2.style.objectFit = 'cover';
+          img2.style.position = 'absolute';
+          img2.style.top = '0';
+          img2.style.left = '0';
+          profileAvatarEl.parentElement.appendChild(img2);
+        } else {
+          const initial = getInitials(user ? user.nombre : 'Usuario');
+          avatarEl.textContent = initial;
+          profileAvatarEl.textContent = initial;
+        }
+      }
+
+      function updateUserInterface(user) {
+        if (user) {
+          userProfile.style.display = 'flex';
+          document.getElementById('openLoginBtn').style.display = 'none';
+          document.getElementById('openRegisterBtn').style.display = 'none';
+          
+          userNameDisplay.textContent = user.nombre || 'Usuario';
+          profileNameDisplay.textContent = user.nombre || 'Usuario';
+          profileEmailDisplay.textContent = user.email || '';
+          if (user.fecha_registro) {
+            const date = new Date(user.fecha_registro);
+            profileDateDisplay.textContent = `Registrado: ${date.toLocaleDateString()}`;
+          }
+          
+          updateAvatarDisplay(user);
+        } else {
+          userProfile.style.display = 'none';
+          document.getElementById('openLoginBtn').style.display = 'block';
+          document.getElementById('openRegisterBtn').style.display = 'block';
+        }
+      }
+
+      // ============================================================
+      // 9. Iniciar sesión automática
+      // ============================================================
+      function checkSession() {
+        const session = getSession();
+        if (session) {
+          const users = getUsers();
+          const user = users.find(u => u.id === session.id && u.email === session.email);
+          if (user) {
+            updateUserInterface(user);
+            return user;
+          } else {
+            clearSession();
+          }
+        }
+        updateUserInterface(null);
+        return null;
+      }
+
+      // ============================================================
+      // 10. Event Listeners - Abrir/Cerrar modales
+      // ============================================================
+      openLoginBtn.addEventListener('click', () => {
+        closeAllModals();
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+      });
+
+      openRegisterBtn.addEventListener('click', () => {
+        closeAllModals();
+        registerModal.classList.add('active');
+        document.getElementById('registerName').focus();
+      });
+
+      closeLoginBtn.addEventListener('click', closeAllModals);
+      closeRegisterBtn.addEventListener('click', closeAllModals);
+      closeRecoverBtn.addEventListener('click', closeAllModals);
+      closeProfileBtn.addEventListener('click', closeAllModals);
+
+      loginModal.addEventListener('click', (e) => {
+        if (e.target === loginModal) closeAllModals();
+      });
+      registerModal.addEventListener('click', (e) => {
+        if (e.target === registerModal) closeAllModals();
+      });
+      recoverModal.addEventListener('click', (e) => {
+        if (e.target === recoverModal) closeAllModals();
+      });
+      profileModal.addEventListener('click', (e) => {
+        if (e.target === profileModal) closeAllModals();
+      });
+
+      // ============================================================
+      // 11. Switch entre modales
+      // ============================================================
+      switchToRegister.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.classList.remove('active');
+        registerModal.classList.add('active');
+        document.getElementById('registerName').focus();
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+      });
+
+      switchToLogin.addEventListener('click', (e) => {
+        e.preventDefault();
+        registerModal.classList.remove('active');
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+        registerMessage.textContent = '';
+        registerMessage.className = 'login-message';
+      });
+
+      forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.classList.remove('active');
+        recoverModal.classList.add('active');
+        document.getElementById('recoverEmail').focus();
+        loginMessage.textContent = '';
+        loginMessage.className = 'login-message';
+        // Resetear recuperación
+        step1.style.display = 'block';
+        step2.style.display = 'none';
+        step3.style.display = 'none';
+        recoverTitle.textContent = '🔑 Recuperar contraseña';
+        recoverDesc.textContent = 'Ingresa tu correo y te enviaremos un código de verificación';
+        recoverMessage.textContent = '';
+        recoverMessage.className = 'login-message';
+        verifyMessage.textContent = '';
+        verifyMessage.className = 'login-message';
+        passwordMessage.textContent = '';
+        passwordMessage.className = 'login-message';
+        document.getElementById('recoverEmail').value = '';
+      });
+
+      backToLoginFromRecover.addEventListener('click', (e) => {
+        e.preventDefault();
+        recoverModal.classList.remove('active');
+        loginModal.classList.add('active');
+        document.getElementById('loginEmail').focus();
+        closeAllModals();
+      });
+
+      // ============================================================
+      // 12. Login
+      // ============================================================
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('loginEmail');
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!email) {
+          loginMessage.textContent = 'Por favor ingresa tu correo.';
+          loginMessage.className = 'login-message error';
+          return;
+        }
+
+        const users = getUsers();
+        const user = users.find(u => u.email.toLowerCase() === email);
+
+        if (user) {
+          setSession({ id: user.id, email: user.email });
+          updateUserInterface(user);
+          loginMessage.textContent = `✅ ¡Bienvenido, ${user.nombre}!`;
+          loginMessage.className = 'login-message success';
+          showToast(`👋 Hola ${user.nombre}`);
+          setTimeout(closeAllModals, 1000);
+        } else {
+          loginMessage.textContent = '❌ No encontramos este correo. ¿Quieres registrarte?';
+          loginMessage.className = 'login-message error';
+          setTimeout(() => {
+            if (confirm('¿No tienes cuenta? ¿Quieres registrarte ahora?')) {
+              loginModal.classList.remove('active');
+              registerModal.classList.add('active');
+              document.getElementById('registerEmail').value = email;
+              document.getElementById('registerName').focus();
+              loginMessage.textContent = '';
+              loginMessage.className = 'login-message';
+            }
+          }, 800);
+        }
+      });
+
+      // ============================================================
+      // 13. Registro
+      // ============================================================
+      registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('registerName');
+        const emailInput = document.getElementById('registerEmail');
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+
+        if (!name || !email) {
+          registerMessage.textContent = '⚠️ Completa todos los campos';
+          registerMessage.className = 'login-message error';
+          return;
+        }
+
+        let users = getUsers();
+
+        if (users.some(u => u.email.toLowerCase() === email)) {
+          registerMessage.textContent = '❌ Este correo ya está registrado.';
+          registerMessage.className = 'login-message error';
+          return;
+        }
+
+        // Generar contraseña aleatoria para el usuario
+        const tempPassword = Math.random().toString(36).slice(-8);
+
+        const newUser = {
+          id: getNextId(users),
+          email: email,
+          nombre: name,
+          fecha_registro: new Date().toISOString(),
+          avatar: null,
+          password: tempPassword
+        };
+
+        users.push(newUser);
+        saveUsers(users);
+        
+        setSession({ id: newUser.id, email: newUser.email });
+        updateUserInterface(newUser);
+
+        registerMessage.textContent = `✅ ¡Cuenta creada con éxito, ${name}!`;
+        registerMessage.className = 'login-message success';
+        showToast(`🎉 ¡Bienvenido ${name}!`);
+
+        nameInput.value = '';
+        emailInput.value = '';
+
+        setTimeout(closeAllModals, 1000);
+      });
+
+      // ============================================================
+      // 14. Recuperación de Contraseña
+      // ============================================================
+      
+      // --- Paso 1: Enviar código ---
+      recoverForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('recoverEmail').value.trim().toLowerCase();
+
+        if (!email) {
+          recoverMessage.textContent = 'Por favor ingresa tu correo.';
+          recoverMessage.className = 'login-message error';
+          return;
+        }
+
+        const users = getUsers();
+        const user = users.find(u => u.email.toLowerCase() === email);
+
+        if (!user) {
+          recoverMessage.textContent = '❌ No encontramos una cuenta con este correo.';
+          recoverMessage.className = 'login-message error';
+          return;
+        }
+
+        // Generar código de verificación
+        recoveryCode = generateVerificationCode();
+        recoveryEmail = email;
+        
+        // Guardar temporalmente en localStorage (para verificar después)
+        const tempData = {
+          email: email,
+          code: recoveryCode,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('foodshooping_recovery', JSON.stringify(tempData));
+
+        // Enviar correo
+        recoverMessage.textContent = '📧 Enviando código...';
+        recoverMessage.className = 'login-message info';
+        sendCodeBtn.disabled = true;
+
+        const sent = await sendVerificationEmail(email, recoveryCode);
+
+        if (sent) {
+          recoverMessage.textContent = '✅ Código enviado a tu correo. Revisa tu bandeja de entrada.';
+          recoverMessage.className = 'login-message success';
+          
+          // Mostrar paso 2
+          step1.style.display = 'none';
+          step2.style.display = 'block';
+          recoverTitle.textContent = '🔐 Verificar código';
+          recoverDesc.textContent = 'Ingresa el código de 6 dígitos que enviamos a ' + email;
+          
+          // Enfocar primer input
+          codeInputs[0].focus();
+          
+          // Iniciar timer para reenviar
+          startResendTimer(60);
+        } else {
+          recoverMessage.textContent = '❌ Error al enviar el código. Intenta de nuevo.';
+          recoverMessage.className = 'login-message error';
+        }
+        
+        sendCodeBtn.disabled = false;
+      });
+
+      // --- Timer para reenviar código ---
+      function startResendTimer(seconds) {
+        resendCooldown = seconds;
+        resendCodeBtn.disabled = true;
+        resendTimer.textContent = `⏳ Reenviar en ${seconds}s`;
+        
+        if (resendTimerInterval) {
+          clearInterval(resendTimerInterval);
+        }
+        
+        resendTimerInterval = setInterval(() => {
+          resendCooldown--;
+          if (resendCooldown <= 0) {
+            clearInterval(resendTimerInterval);
+            resendTimerInterval = null;
+            resendCodeBtn.disabled = false;
+            resendTimer.textContent = '🔄 Haz clic para reenviar';
+          } else {
+            resendTimer.textContent = `⏳ Reenviar en ${resendCooldown}s`;
+          }
+        }, 1000);
+      }
+
+      // --- Reenviar código ---
+      resendCodeBtn.addEventListener('click', async () => {
+        if (resendCodeBtn.disabled) return;
+        
+        const users = getUsers();
+        const user = users.find(u => u.email.toLowerCase() === recoveryEmail);
+        
+        if (!user) {
+          verifyMessage.textContent = '❌ Error: Usuario no encontrado.';
+          verifyMessage.className = 'login-message error';
+          return;
+        }
+        
+        // Generar nuevo código
+        recoveryCode = generateVerificationCode();
+        
+        const tempData = {
+          email: recoveryEmail,
+          code: recoveryCode,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('foodshooping_recovery', JSON.stringify(tempData));
+        
+        verifyMessage.textContent = '📧 Reenviando código...';
+        verifyMessage.className = 'login-message info';
+        resendCodeBtn.disabled = true;
+        
+        const sent = await sendVerificationEmail(recoveryEmail, recoveryCode);
+        
+        if (sent) {
+          verifyMessage.textContent = '✅ Nuevo código enviado.';
+          verifyMessage.className = 'login-message success';
+          startResendTimer(60);
+        } else {
+          verifyMessage.textContent = '❌ Error al reenviar. Intenta de nuevo.';
+          verifyMessage.className = 'login-message error';
+          resendCodeBtn.disabled = false;
+        }
+      });
+
+      // --- Manejo de inputs del código ---
+      codeInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          const value = e.target.value;
+          
+          // Solo permitir números
+          if (value && !/^[0-9]$/.test(value)) {
+            e.target.value = '';
+            return;
+          }
+          
+          // Auto-avanzar al siguiente input
+          if (value && index < codeInputs.length - 1) {
+            codeInputs[index + 1].focus();
+          }
+          
+          // Si todos los inputs están llenos, verificar automáticamente
+          const allFilled = Array.from(codeInputs).every(inp => inp.value.length === 1);
+          if (allFilled) {
+            setTimeout(() => {
+              verifyCodeBtn.click();
+            }, 300);
+          }
+        });
+        
+        input.addEventListener('keydown', (e) => {
+          // Retroceder con Backspace
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            codeInputs[index - 1].focus();
+          }
+        });
+        
+        // Móvil: enfocar al tocar
+        input.addEventListener('focus', () => {
+          input.select();
+        });
+      });
+
+      // --- Paso 2: Verificar código ---
+      verifyCodeBtn.addEventListener('click', () => {
+        const code = Array.from(codeInputs).map(input => input.value).join('');
+        
+        if (code.length !== 6) {
+          verifyMessage.textContent = '⚠️ Ingresa el código de 6 dígitos completo.';
+          verifyMessage.className = 'login-message error';
+          return;
+        }
+        
+        // Verificar código
+        const tempData = JSON.parse(localStorage.getItem('foodshooping_recovery') || '{}');
+        
+        if (tempData.code === code && tempData.email === recoveryEmail) {
+          // Verificar que no haya expirado (10 minutos)
+          const elapsed = Date.now() - tempData.timestamp;
+          if (elapsed > 10 * 60 * 1000) {
+            verifyMessage.textContent = '⏰ El código ha expirado. Solicita uno nuevo.';
+            verifyMessage.className = 'login-message error';
+            return;
+          }
+          
+          verifyMessage.textContent = '✅ Código correcto.';
+          verifyMessage.className = 'login-message success';
+          
+          // Mostrar paso 3
+          step2.style.display = 'none';
+          step3.style.display = 'block';
+          recoverTitle.textContent = '🔒 Nueva contraseña';
+          recoverDesc.textContent = 'Ingresa tu nueva contraseña para ' + recoveryEmail;
+          
+          // Limpiar código
+          localStorage.removeItem('foodshooping_recovery');
+          
+        } else {
+          verifyMessage.textContent = '❌ Código incorrecto. Intenta de nuevo.';
+          verifyMessage.className = 'login-message error';
+        }
+      });
+
+      // --- Paso 3: Nueva contraseña ---
+      newPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword.length < 6) {
+          passwordMessage.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+          passwordMessage.textContent = '❌ Las contraseñas no coinciden.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        // Actualizar contraseña
+        const users = getUsers();
+        const userIndex = users.findIndex(u => u.email.toLowerCase() === recoveryEmail);
+        
+        if (userIndex === -1) {
+          passwordMessage.textContent = '❌ Error: Usuario no encontrado.';
+          passwordMessage.className = 'login-message error';
+          return;
+        }
+        
+        users[userIndex].password = newPassword;
+        saveUsers(users);
+        
+        passwordMessage.textContent = '✅ ¡Contraseña actualizada con éxito!';
+        passwordMessage.className = 'login-message success';
+        
+        showToast('🔒 Contraseña actualizada correctamente');
+        
+        // Cerrar modal y mostrar login después de 1.5s
+        setTimeout(() => {
+          closeAllModals();
+          loginModal.classList.add('active');
+          document.getElementById('loginEmail').value = recoveryEmail;
+          loginMessage.textContent = '✅ Contraseña actualizada. Inicia sesión.';
+          loginMessage.className = 'login-message success';
+        }, 1500);
+      });
+
+      // ============================================================
+      // 15. Perfil - Dropdown
+      // ============================================================
+      userProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+
+      document.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+      });
+
+      profileMenuItem.addEventListener('click', () => {
+        userDropdown.classList.remove('active');
+        const session = getSession();
+        if (session) {
+          const users = getUsers();
+          const user = users.find(u => u.id === session.id);
+          if (user) {
+            profileModal.classList.add('active');
+          }
+        }
+      });
+
+      // ============================================================
+      // 16. Cerrar sesión
+      // ============================================================
+      function logout() {
+        clearSession();
+        updateUserInterface(null);
+        closeAllModals();
+        showToast('👋 Has cerrado sesión');
+      }
+
+      logoutMenuItem.addEventListener('click', logout);
+      profileLogoutBtn.addEventListener('click', logout);
+
+      // ============================================================
+      // 17. Subir avatar
+      // ============================================================
+      avatarUploadBtn.addEventListener('click', () => {
+        profileAvatarInput.click();
+      });
+
+      profileAvatarInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.size > 2 * 1024 * 1024) {
+          showToast('❌ La imagen es muy grande (máx 2MB)');
+          profileAvatarInput.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const avatarData = event.target.result;
+          
+          const session = getSession();
+          if (session) {
+            const users = getUsers();
+            const userIndex = users.findIndex(u => u.id === session.id);
+            if (userIndex !== -1) {
+              users[userIndex].avatar = avatarData;
+              saveUsers(users);
+              setSession({ id: users[userIndex].id, email: users[userIndex].email });
+              updateUserInterface(users[userIndex]);
+              showToast('📷 Foto de perfil actualizada');
+            }
+          }
+          profileAvatarInput.value = '';
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // ============================================================
+      // 18. Descarga APK
+      // ============================================================
+      document.getElementById('downloadApkBtn')?.addEventListener('click', () => {
+        showToast('📲 Descargando Food Shooping APK...', 2000);
+      });
+
+      // ============================================================
+      // 19. Cerrar con Escape
+      // ============================================================
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllModals();
+      });
+
+      // ============================================================
+      // 20. Inicializar
+      // ============================================================
+      const currentUser = checkSession();
+      if (currentUser) {
+        updateUserInterface(currentUser);
+      }
+
+      // Exponer funciones para debug
+      window.getUsers = getUsers;
+      window.saveUsers = saveUsers;
+      window.getSession = getSession;
+      window.logout = logout;
+
+      setTimeout(() => {
+        showToast('🍕 ¡Bienvenido a Food Shooping!', 2500);
+      }, 600);
+
+    })();
+  </script>
+</body>
+</html>
